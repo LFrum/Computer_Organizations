@@ -1,0 +1,168 @@
+/Lince Rumainum
+/112722337
+/Computer Organization
+/Project Assembly Code
+/------------------------------------------------
+/This program take input between
+/01 to 99 and calculate the average
+/of the sum of consecutive number
+/from 1 to specified input
+/------------------------------------------------
+/Get the first digit of input
+1, SKI
+    BUN 1
+    INP
+    ADD INPCONVRTR
+    STA INPTENS
+    LDA MINUSTEN
+    STA TENSCTR
+    CLA /Clear AC
+/Convert to tens (i.e 1 -> 10)
+CALCINPTENS, ADD INPTENS
+    ISZ TENSCTR
+    BUN CALCINPTENS
+    STA INPTOTAL
+/Get the second digit of input
+2, SKI
+    BUN 2
+    INP
+    ADD INPCONVRTR
+    STA INPONES
+/----------------------------------
+/Calculate actual total input
+    ADD INPTOTAL
+    STA INPTOTAL
+/Create negative of total input
+    LDA INPTOTAL
+    CMA
+    INC
+    STA MINUSINP
+    STA SUMCTR
+    CLA /Clear AC
+/----------------------------------
+/Calculate sum
+    LDA ITR /load ITR = 0 to AC
+    ISZ ITR /iteration start at 1
+CALCSUM, ADD ITR /add ITR's value to AC
+    ISZ ITR
+    ISZ SUMCTR
+    BUN CALCSUM
+    STA SUM
+    CLA
+/Calculate output (AVE=SUM/INPTOTAL)
+    LDA SUM
+CALCAVE,ADD MINUSINP
+    SNA /skip if AC < 0
+    ISZ QUOT
+    SNA /skip if AC < 0
+    BUN CALCAVE
+    SZA /skip if AC = 0
+    ADD INPTOTAL
+    STA RMNDR
+    CLA
+/----------------------------------
+/converting QUOT into 2 digits for output
+/(i.e 24 -> QUOTTENS: 2, QUOTONES: 4)
+    LDA QUOT
+GETQUOTDIGITS, ADD MINUSTEN
+    SNA /skip if AC < 0
+    ISZ QUOTTENS
+    SNA /skip if AC < 0
+    BUN GETQUOTDIGITS
+    SZA /skip if AC = 0
+    ADD TEN
+    STA QUOTONES
+    CLA
+/----------------------------------
+/shift reminder
+/by multiplying reminder by 10
+/i.e 5 -> 50)
+    LDA MINUSTEN
+    STA TENSCTR
+    CLA /Clear AC
+SHIFTREMINDER,ADD RMNDR
+    ISZ TENSCTR
+    BUN SHIFTREMINDER
+    STA RMNDR
+/divide reminder by input
+GETREMINDER, ADD MINUSINP
+    SNA /skip if AC < 0
+    ISZ RMNDRTENTH
+    SNA /skip if AC < 0
+    BUN GETREMINDER
+    CLA
+/----------------------------------
+/Output result: 
+/(convert dec to hex if needed)
+/quotient
+/skip if quotient < 10
+6, SKO
+    BUN 6
+    LDA QUOTTENS
+    SZA
+    ADD OUTCONVRTR
+    SZA
+    OUT
+7, SKO
+    BUN 7
+    LDA QUOTONES
+    ADD OUTCONVRTR
+    OUT
+/decimal point
+8, SKO
+    BUN 8
+    LDA DECPT
+    OUT
+/decimal digit
+9, SKO
+    BUN 9
+    LDA RMNDRTENTH
+    ADD OUTCONVRTR
+    OUT
+    HLT /Halt
+/------------------------------------------------
+/Variables used for the program:
+ITR, DEC 0 /iteration from 1 to input value
+/Input variables
+/(i.e. 35 ->INPTENS: 3, INPONES:5)
+INPTENS, DEC 0 /The tens digit of input
+INPONES, DEC 0 /The ones digit of input
+INPTOTAL, DEC 0 /total input
+/Need for SUMCTR & division calculation
+MINUSINP, DEC 0 /(-) total input
+/------------------------------------------------
+/ASCII <-> decimal conversion
+/Hex: 30 in ASCII is Char: 0
+/(i.e. if input ASCII char: 6, it is read in as
+/36Hex, therefore to store it
+/36Hex - 30Hex = 6Hex = 6Dec)
+/-----------
+/(i.e. if output dec 5,
+/it is stored as 5Hex, therefore
+/5Hex + 30Hex = 35Hex which is 
+/ASCII char: 5)
+INPCONVRTR, HEX -30 /input converter
+OUTCONVRTR, HEX 30 /output converter
+/------------------------------------------------
+/Counters used in this program:
+TENSCTR, HEX 0
+SUMCTR, HEX 0 /Counter to calc sum
+/10 is used to shift back reminder to be > 0
+TEN, DEC 10
+/-10 is used to multiply and divide
+/by adding and subtraction
+MINUSTEN, DEC -10
+/------------------------------------------------
+/Calculation & output variables:
+SUM, DEC 0 /sum of iterations
+/ max result would be a 3 digit num
+/ 2 digit quotient num
+QUOT, DEC 0
+QUOTTENS, DEC 0
+QUOTONES, DEC 0
+/ with 1 digit after decimal pt
+RMNDR, DEC 0
+RMNDRTENTH, DEC 0
+/ decimal point's hex value in ASCII
+DECPT, HEX 02E
+    END
